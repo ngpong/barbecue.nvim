@@ -153,15 +153,23 @@ end
 function M.get_file_icon(filename, filetype)
   if not devicons_ok then return nil end
 
-  local basename = vim.fn.fnamemodify(filename, ":t")
-  local extension = vim.fn.fnamemodify(filename, ":e")
-
+  local icon = nil
   local icons = devicons.get_icons()
-  local icon = icons[basename] or icons[extension]
-  if icon == nil then
+
+  if filetype ~= nil then
+    -- primary
     local name = devicons.get_icon_name_by_filetype(filetype)
-    icon = icons[name] or devicons.get_default_icon()
-    if icon == nil then return nil end
+    icon = icons[name]
+  else
+    -- secondary
+    local basename = vim.fn.fnamemodify(filename, ":t")
+    local extension = vim.fn.fnamemodify(filename, ":e")
+
+    icon = icons[basename] or icons[extension]
+  end
+  if not icon then
+    -- fallback
+    icon = devicons.get_default_icon()
   end
 
   local highlight = string.format("barbecue_fileicon_%s", icon.name)

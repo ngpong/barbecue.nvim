@@ -151,6 +151,8 @@ local M = {
     Operator = "",
     TypeParameter = "",
   },
+
+  context_suffix = '',
 }
 
 return M

@@ -158,7 +158,7 @@ local function build_winbar(entries, lead_custom_section, custom_section)
     "%%#%s#%s%s%%#%s#%%=%%#%s#%s",
     theme.highlights.normal,
     lead_custom_section,
-    entries_str,
+    config.user.context_suffix .. entries_str,
     theme.highlights.normal,
     theme.highlights.normal,
     custom_section

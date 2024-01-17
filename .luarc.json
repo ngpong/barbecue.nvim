@@ -1,12 +1,34 @@
 {
   "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
-  "diagnostics": {
-    "globals": ["vim"]
-  },
-  "format": {
+
+  "addonManager": {
     "enable": false
   },
+
+  "completion": {
+    "displayContext": 0,
+    "showWord": "Fallback",
+    "keywordSnippet": "Both",
+    "workspaceWord": true
+  },
+
+  "format.enable": false,
+
+  "diagnostics": {
+    "globals": [ "vim" ]
+  },
+
   "runtime": {
     "version": "LuaJIT"
+  },
+
+  "workspace": {
+    "checkThirdParty": false,
+    "library": [
+      "/usr/local/share/lua/5.1",
+      "/usr/share/lua/5.1",
+
+      "/usr/share/nvim/runtime/lua"
+    ]
   }
 }
