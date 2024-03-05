@@ -53,6 +53,10 @@ function M.dirname(bufnr)
       Entry.new({
         dir,
         highlight = theme.highlights.dirname,
+      },
+      {
+        config.user.symbols.dir,
+        highlight = theme.highlights.diricon
       })
     )
   end

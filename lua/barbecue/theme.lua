@@ -16,6 +16,7 @@ M.highlights = {
   modified = "barbecue_modified",
 
   dirname = "barbecue_dirname",
+  diricon = "barbecue_diricon",
   basename = "barbecue_basename",
   context = "barbecue_context",
 

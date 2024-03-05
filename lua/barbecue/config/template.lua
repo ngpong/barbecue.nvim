@@ -114,6 +114,8 @@ local M = {
     ---
     ---@type string
     separator = "",
+
+    dir = "",
   },
 
   ---@alias barbecue.Config.kinds
