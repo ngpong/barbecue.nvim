@@ -41,6 +41,8 @@ local M = {
   ---@type boolean
   show_dirname = true,
 
+  split_dirname = true,
+
   ---Whether to display file name.
   ---
   ---@type boolean
@@ -153,6 +155,10 @@ local M = {
     Operator = "",
     TypeParameter = "",
   },
+
+  attach_filter = function()
+    return true
+  end,
 
   context_suffix = '',
 }

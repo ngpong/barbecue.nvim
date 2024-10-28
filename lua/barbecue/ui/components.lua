@@ -46,13 +46,26 @@ function M.dirname(bufnr)
     dirname = dirname:sub(protocol_start_index + 3)
   end
 
-  local dirs = vim.split(dirname, PATH_SEPARATOR, { trimempty = true })
-  for _, dir in ipairs(dirs) do
+  if config.user.split_dirname then
+    for _, dir in ipairs(vim.split(dirname, PATH_SEPARATOR, { trimempty = true })) do
+      table.insert(
+        entries,
+        Entry.new({
+          dir,
+          highlight = theme.highlights.dirname,
+        },
+        {
+          config.user.symbols.dir,
+          highlight = theme.highlights.diricon
+        })
+      )
+    end
+  else
     table.insert(
       entries,
       Entry.new({
-        dir,
-        highlight = theme.highlights.dirname,
+        dirname,
+        highlight = theme.highlights.normal,
       },
       {
         config.user.symbols.dir,

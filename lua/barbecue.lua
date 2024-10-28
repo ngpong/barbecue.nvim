@@ -67,12 +67,14 @@ end
 ---
 ---@param cfg barbecue.Config? Table of of configurations to override the default behavior.
 function M.setup(cfg)
+  require("nvim-navic").setup { lazy_update_context = true }
+
   config.apply(cfg or {})
   theme.load()
 
   autocmd.create_colorscheme_synchronizer()
-  if config.user.attach_navic then autocmd.create_navic_attacher() end
-  if config.user.create_autocmd then autocmd.create_updater() end
+  autocmd.create_navic_attacher()
+  autocmd.create_updater()
 
   create_barbecue_command({
     hide = {
@@ -88,6 +90,8 @@ function M.setup(cfg)
       desc = "Toggle barbecue globally",
     },
   })
+
+  ui.toggle(true)
 end
 
 return M
