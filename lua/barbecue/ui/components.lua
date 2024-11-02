@@ -5,6 +5,30 @@ local Entry = require("barbecue.ui.entry")
 
 local PATH_SEPARATOR = package.config:sub(1, 1)
 
+local function make_dir_entry(dir)
+  if config.user.symbols.dir == "" then
+    make_dir_entry = function(_dir)
+      return Entry.new({
+        _dir,
+        highlight = theme.highlights.dirname,
+      })
+    end
+  else
+    make_dir_entry = function(_dir)
+      return Entry.new({
+        _dir,
+        highlight = theme.highlights.dirname,
+      },
+      {
+        config.user.symbols.dir,
+        highlight = theme.highlights.diricon
+      })
+    end
+  end
+
+  return make_dir_entry(dir)
+end
+
 local M = {}
 
 ---Component that displays dirname.
@@ -48,30 +72,10 @@ function M.dirname(bufnr)
 
   if config.user.split_dirname then
     for _, dir in ipairs(vim.split(dirname, PATH_SEPARATOR, { trimempty = true })) do
-      table.insert(
-        entries,
-        Entry.new({
-          dir,
-          highlight = theme.highlights.dirname,
-        },
-        {
-          config.user.symbols.dir,
-          highlight = theme.highlights.diricon
-        })
-      )
+      table.insert(entries, make_dir_entry(dir))
     end
   else
-    table.insert(
-      entries,
-      Entry.new({
-        dirname,
-        highlight = theme.highlights.normal,
-      },
-      {
-        config.user.symbols.dir,
-        highlight = theme.highlights.diricon
-      })
-    )
+    table.insert(entries, make_dir_entry(dirname))
   end
 
   return entries
@@ -79,10 +83,10 @@ end
 
 ---Component that displays basename alongside a web-devicon if any.
 ---
----@param winnr number Window to extract information from.
+---@param winid number Window to extract information from.
 ---@param bufnr number Buffer to extract information from.
 ---@return barbecue.Entry|nil
-function M.basename(winnr, bufnr)
+function M.basename(winid, bufnr)
   if not config.user.show_basename then return nil end
 
   local filename = vim.api.nvim_buf_get_name(bufnr)
@@ -108,7 +112,7 @@ function M.basename(winnr, bufnr)
     },
     icon,
     {
-      win = winnr,
+      win = winid,
       pos = { 1, 0 },
     }
   )
@@ -191,10 +195,10 @@ end
 
 ---Component that displays LSP context using nvim-navic.
 ---
----@param winnr number Window to extract information from.
+---@param winid number Window to extract information from.
 ---@param bufnr number Buffer to extract information from.
 ---@return barbecue.Entry[]
-function M.context(winnr, bufnr)
+function M.context(winid, bufnr)
   if not config.user.show_navic then return {} end
   if not navic.is_available() then return {} end
 
@@ -212,7 +216,7 @@ function M.context(winnr, bufnr)
         },
         get_kind_icon(nesting.kind),
         {
-          win = winnr,
+          win = winid,
           pos = { nesting.scope.start.line, nesting.scope.start.character },
         }
       )

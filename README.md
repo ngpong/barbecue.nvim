@@ -110,7 +110,7 @@ you've seen in the select menu of raw `:Barbecue`.
   require("barbecue.ui").update()
 
   -- update the given window's winbar
-  require("barbecue.ui").update(winnr)
+  require("barbecue.ui").update(winid)
   ```
 
 - Navigate to entry [[source]][navigate]
@@ -123,7 +123,7 @@ you've seen in the select menu of raw `:Barbecue`.
   require("barbecue.ui").navigate(-1)
 
   -- just like before but on the given window
-  require("barbecue.ui").navigate(index, winnr)
+  require("barbecue.ui").navigate(index, winid)
   ```
 
 [installation]: #-installation
@@ -316,7 +316,7 @@ you've seen in the select menu of raw `:Barbecue`.
   ---NOTE: This function shouldn't do any expensive actions as it is run on each
   ---render.
   ---
-  ---@type fun(bufnr: number, winnr: number): barbecue.Config.custom_section
+  ---@type fun(bufnr: number, winid: number): barbecue.Config.custom_section
   lead_custom_section = function() return " " end,
 
   ---@alias barbecue.Config.custom_section
@@ -328,7 +328,7 @@ you've seen in the select menu of raw `:Barbecue`.
   ---NOTE: This function shouldn't do any expensive actions as it is run on each
   ---render.
   ---
-  ---@type fun(bufnr: number, winnr: number): barbecue.Config.custom_section
+  ---@type fun(bufnr: number, winid: number): barbecue.Config.custom_section
   custom_section = function() return " " end,
 
   ---@alias barbecue.Config.theme

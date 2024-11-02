@@ -114,7 +114,7 @@ API ~
         require("barbecue.ui").update()
         
         -- update the given window's winbar
-        require("barbecue.ui").update(winnr)
+        require("barbecue.ui").update(winid)
     <
 - Navigate to entry [source]
     <https://github.com/utilyre/barbecue.nvim/blob/v1.2.0/lua/barbecue/ui.lua#L244-L267>
@@ -126,7 +126,7 @@ API ~
         require("barbecue.ui").navigate(-1)
         
         -- just like before but on the given window
-        require("barbecue.ui").navigate(index, winnr)
+        require("barbecue.ui").navigate(index, winid)
     <
 
 
@@ -309,7 +309,7 @@ Click to see default config
       ---NOTE: This function shouldn't do any expensive actions as it is run on each
       ---render.
       ---
-      ---@type fun(bufnr: number, winnr: number): barbecue.Config.custom_section
+      ---@type fun(bufnr: number, winid: number): barbecue.Config.custom_section
       lead_custom_section = function() return " " end,
     
       ---@alias barbecue.Config.custom_section
@@ -321,7 +321,7 @@ Click to see default config
       ---NOTE: This function shouldn't do any expensive actions as it is run on each
       ---render.
       ---
-      ---@type fun(bufnr: number, winnr: number): barbecue.Config.custom_section
+      ---@type fun(bufnr: number, winid: number): barbecue.Config.custom_section
       custom_section = function() return " " end,
     
       ---@alias barbecue.Config.theme

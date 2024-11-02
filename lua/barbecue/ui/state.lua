@@ -3,20 +3,20 @@ local VAR_LAST_WINBAR = "barbecue_last_winbar"
 local VAR_ENTRIES = "barbecue_entries"
 
 ---@class barbecue.State
----@field private winnr number Window to figure out current state from.
+---@field private winid number Window to figure out current state from.
 ---@field private bufnr number Buffer to store the state in.
 local State = {}
 State.__index = State
 
 ---Creates a new State.
 ---
----@param winnr number Window to attach to.
+---@param winid number Window to attach to.
 ---@return barbecue.State
-function State.new(winnr)
+function State.new(winid)
   local instance = setmetatable({}, State)
 
-  instance.winnr = winnr
-  instance.bufnr = vim.api.nvim_win_get_buf(winnr)
+  instance.winid = winid
+  instance.bufnr = vim.api.nvim_win_get_buf(winid)
 
   return instance
 end
@@ -68,7 +68,7 @@ function State:save(entries)
     vim.api.nvim_buf_set_var(
       self.bufnr,
       VAR_LAST_WINBAR,
-      vim.wo[self.winnr].winbar
+      vim.wo[self.winid].winbar
     )
   end
 

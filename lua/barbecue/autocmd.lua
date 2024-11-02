@@ -18,6 +18,9 @@ function M.create_navic_attacher()
     group = group,
     callback = function(args)
       local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if not client then
+        return
+      end
 
       if not client.server_capabilities["documentSymbolProvider"] then
         vim.b[args.buf].barbecu_enable = false
@@ -93,11 +96,17 @@ function M.create_updater()
 
   -- 0x1: 保证任何文件都有最基础的 wintab 显示；该 wintab 主要负责显示文件名
   local b1 = bouncer.throttle_leading(10, vim.schedule_wrap(function(args)
-    if not vim.api.nvim_buf_is_valid(args.buf) then
+    local bufnr = args.buf
+    if not vim.api.nvim_buf_is_valid(bufnr) then
       return
     end
 
-    ui.update()
+    local winid = vim.fn.bufwinid(bufnr)
+    if not vim.api.nvim_win_is_valid(winid) then
+      return
+    end
+
+    ui.update(winid, bufnr)
   end))
   vim.api.nvim_create_autocmd({ "BufWinEnter", "WinResized", }, {
     group = group,
@@ -109,11 +118,17 @@ function M.create_updater()
   -- 0x2: 保证仅附加了navic的文件能够更新tabline的状态(因为只有它们会存在符号)
   local __proc_insert_leave = false
   local b2 = bouncer.throttle_trailing(350, true, vim.schedule_wrap(function(args)
-    if not vim.api.nvim_buf_is_valid(args.buf) then
+    local bufnr = args.buf
+    if not vim.api.nvim_buf_is_valid(bufnr) then
       return
     end
 
-    if not vim.b[args.buf].barbecu_enable then
+    if not vim.b[bufnr].barbecu_enable then
+      return
+    end
+
+    local winid = vim.fn.bufwinid(bufnr)
+    if not vim.api.nvim_win_is_valid(winid) then
       return
     end
 
@@ -126,8 +141,8 @@ function M.create_updater()
       __proc_insert_leave = true
     end
 
-    navic_lib.update_context(args.buf)
-    ui.update()
+    navic_lib.update_context(bufnr)
+    ui.update(winid, bufnr)
   end))
   vim.api.nvim_create_autocmd({ "CursorMoved", "InsertLeave", }, {
     group = group,

@@ -60,18 +60,18 @@ end
 
 ---Extract custom section and its length from given function.
 ---
----@param winnr number Window to be used as context.
+---@param winid number Window to be used as context.
 ---@param custom_section barbecue.Config.custom_section User config value to extract the custom section from.
 ---@return string custom_section Styled custom section.
 ---@return number length Length of custom section.
-local function extract_custom_section(winnr, custom_section)
+local function extract_custom_section(winid, custom_section)
   local length = 0
   local content = ""
 
   if type(custom_section) == "string" then
     length = vim.api.nvim_eval_statusline(custom_section, {
       use_winbar = true,
-      winid = winnr,
+      winid = winid,
     }).width
     content = custom_section
   elseif type(custom_section) == "table" then
@@ -79,7 +79,7 @@ local function extract_custom_section(winnr, custom_section)
       length = length
         + vim.api.nvim_eval_statusline(part[1], {
           use_winbar = true,
-          winid = winnr,
+          winid = winid,
         }).width
 
       if part[2] ~= nil then
@@ -95,16 +95,16 @@ end
 ---Gathers all the entries and combines them, then truncates the less useful
 ---parts if there's shortage of room.
 ---
----@param winnr number Window to be passed to components.
+---@param winid number Window to be passed to components.
 ---@param bufnr number Buffer to be passed to components.
 ---@param extra_length number Additional length to consider when truncating.
 ---@return barbecue.Entry[]|nil
-local function create_entries(winnr, bufnr, extra_length)
+local function create_entries(winid, bufnr, extra_length)
   if vim.api.nvim_buf_get_name(bufnr) == "" then return nil end
 
   local dirname = components.dirname(bufnr)
-  local basename = components.basename(winnr, bufnr)
-  local context = components.context(winnr, bufnr)
+  local basename = components.basename(winid, bufnr)
+  local context = components.context(winid, bufnr)
 
   ---@type barbecue.Entry[]
   local entries = {}
@@ -117,7 +117,7 @@ local function create_entries(winnr, bufnr, extra_length)
       length = length
         + vim.api.nvim_eval_statusline(config.user.symbols.separator, {
           use_winbar = true,
-          winid = winnr,
+          winid = winid,
         }).width
         + 2
     end
@@ -125,7 +125,7 @@ local function create_entries(winnr, bufnr, extra_length)
   truncate_entries(
     entries,
     length,
-    vim.api.nvim_win_get_width(winnr),
+    vim.api.nvim_win_get_width(winid),
     #dirname + 1
   )
 
@@ -169,16 +169,18 @@ end
 ---buffer contained by it is excluded.
 ---
 ---@async
----@param winnr number? Window to update the winbar of or `nil` for the current window.
-function M.update(winnr)
-  winnr = winnr or vim.api.nvim_get_current_win()
-  local bufnr = vim.api.nvim_win_get_buf(winnr)
-  local state = State.new(winnr)
+---@param winid number? Window to update the winbar of or `nil` for the current window.
+---@param bufnr number?
+function M.update(winid, bufnr)
+  winid = winid or vim.api.nvim_get_current_win()
+  bufnr = bufnr or vim.api.nvim_win_get_buf(winid)
+
+  local state = State.new(winid)
 
   if
     not vim.tbl_contains(config.user.include_buftypes, vim.bo[bufnr].buftype)
     or vim.tbl_contains(config.user.exclude_filetypes, vim.bo[bufnr].filetype)
-    or vim.api.nvim_win_get_config(winnr).relative ~= ""
+    or vim.api.nvim_win_get_config(winid).relative ~= ""
     or (
       not config.user.show_dirname
       and not config.user.show_basename
@@ -188,7 +190,7 @@ function M.update(winnr)
     local last_winbar = state:get_last_winbar()
     if last_winbar ~= nil then
       -- HACK: this exists because of Vim:E36 error. See neovim/neovim#19464
-      pcall(function() vim.wo[winnr].winbar = last_winbar end)
+      pcall(function() vim.wo[winid].winbar = last_winbar end)
     end
 
     state:clear()
@@ -196,35 +198,35 @@ function M.update(winnr)
   end
 
   if not visible then
-    vim.wo[winnr].winbar = ""
+    vim.wo[winid].winbar = ""
     return
   end
 
   vim.schedule(function()
     if
       not vim.api.nvim_buf_is_valid(bufnr)
-      or not vim.api.nvim_win_is_valid(winnr)
-      or bufnr ~= vim.api.nvim_win_get_buf(winnr)
+      or not vim.api.nvim_win_is_valid(winid)
+      or bufnr ~= vim.api.nvim_win_get_buf(winid)
     then
       return
     end
 
     local lead_custom_section, lead_custom_section_length =
       extract_custom_section(
-        winnr,
-        config.user.lead_custom_section(bufnr, winnr)
+        winid,
+        config.user.lead_custom_section(bufnr, winid)
       )
     local custom_section, custom_section_length =
-      extract_custom_section(winnr, config.user.custom_section(bufnr, winnr))
+      extract_custom_section(winid, config.user.custom_section(bufnr, winid))
     local entries = create_entries(
-      winnr,
+      winid,
       bufnr,
       lead_custom_section_length + custom_section_length
     )
     if entries == nil then return end
 
     state:save(entries)
-    vim.wo[winnr].winbar =
+    vim.wo[winid].winbar =
       build_winbar(entries, lead_custom_section, custom_section)
   end)
 end
@@ -236,20 +238,20 @@ function M.toggle(shown)
   if shown == nil then shown = not visible end
 
   visible = shown --[[ @as boolean ]]
-  for _, winnr in ipairs(vim.api.nvim_list_wins()) do
-    M.update(winnr)
+  for _, winid in ipairs(vim.api.nvim_list_wins()) do
+    M.update(winid)
   end
 end
 
 ---Navigate to a specific entry.
 ---
 ---@param index number Index of the desired entry.
----@param winnr number? Window that contains the entry or `nil` for the current window.
-function M.navigate(index, winnr)
+---@param winid number? Window that contains the entry or `nil` for the current window.
+function M.navigate(index, winid)
   if index == 0 then error("expected non-zero index", 2) end
-  winnr = winnr or vim.api.nvim_get_current_win()
+  winid = winid or vim.api.nvim_get_current_win()
 
-  local entries = State.new(winnr):get_entries()
+  local entries = State.new(winid):get_entries()
   if entries == nil then return end
 
   ---@type barbecue.Entry[]
