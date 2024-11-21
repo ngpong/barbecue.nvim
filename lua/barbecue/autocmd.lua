@@ -27,7 +27,7 @@ function M.create_navic_attacher()
         return
       end
 
-      if config.user.attach_filter and not config.user.attach_filter() then
+      if config.user.attach_filter and not config.user.attach_filter(args) then
         vim.b[args.buf].barbecu_enable = false
         return
       end

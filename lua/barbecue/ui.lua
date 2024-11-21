@@ -145,7 +145,7 @@ local function build_winbar(entries, lead_custom_section, custom_section)
     if i < #entries then
       entries_str = entries_str
         .. string.format(
-          "%%#%s# %%#%s#",
+          "%%#%s#%%#%s#",
           theme.highlights.normal,
           theme.highlights.separator
         )

@@ -156,7 +156,7 @@ local M = {
     TypeParameter = "",
   },
 
-  attach_filter = function()
+  attach_filter = function(state)
     return true
   end,
 
